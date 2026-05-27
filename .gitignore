@@ -1,0 +1,45 @@
+# OS-sp
+ecific files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Editor files
+*.bak
+.vscode/
+.idea/
+
+# Vagrant local state (will be relevant in Phase 3)
+.vagrant/
+*.box
+
+# Ansible artifacts (will be relevant in Phase 4)
+*.retry
+.vault-pass
+.vault_pass
+
+# Logs
+*.log
+
+# Local environment files — NEVER commit secrets
+.env
+.envrc
+secrets/
+*_secret*
+*_private*
+
+# SSH keys — defense in depth, these should never be in the repo
+id_rsa
+id_ed25519
+*.pem
+
+# Python bytecode (if tooling generates it)
+__pycache__/
+*.pyc
+*.pyo
+
+# Local scratch directories
+scratch/
+.local/
