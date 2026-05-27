@@ -1,0 +1,14 @@
+$TTL 86400          ; 1 day default TTL
+
+@   IN  SOA  dns.lab.local. admin.lab.local. (
+                2026052701  ; serial
+                3600        ; refresh (1 hour)
+                1800        ; retry (30 minutes)
+                604800      ; expire (1 week)
+                86400 )     ; minimum / negative TTL (1 day)
+
+    IN  NS   dns.lab.local.
+
+dns IN  A    127.0.0.1
+web IN  A    127.0.0.1
+ntp IN  A    127.0.0.1

@@ -10,7 +10,7 @@ This is also a public portfolio for job applications in Linux systems engineerin
 
 ## Project goals
 
-- [ ] **Phase 1**: Authoritative DNS server with BIND 9 on AlmaLinux 9
+- [x] **Phase 1**: Authoritative DNS server with BIND 9 on AlmaLinux 9
 - [ ] **Phase 2**: NTP server with chrony, with offset/stratum monitoring
 - [ ] **Phase 3**: Multi-VM datacenter simulation with Vagrant + VirtualBox
 - [ ] **Phase 4**: Full automation with Ansible (roles for DNS, NTP, hardening)
@@ -35,3 +35,4 @@ This is also a public portfolio for job applications in Linux systems engineerin
 ## Background
 
 I'm transitioning into Linux systems engineering and using this lab to bridge the gap between tutorials and production-ready skills. The technologies chosen reflect what the target role (IT System Engineer Linux, RHEL/virtualization/DNS/NTP focus) actually uses on the job.
+
