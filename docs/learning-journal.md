@@ -40,3 +40,29 @@
 - DNSSEC validation chain
 - mDNS conflict implications of `.local`
 - Why BIND uses 241MB memory for a tiny zone
+
+## Day 3 — May 28, 2026
+
+### What I built
+- Installed chrony (NTP daemon) on AlmaLinux 9
+- Verified it as a client: synced to a stratum-0 PTP hardware clock via WSL2 (microsecond accuracy)
+- Configured it as a time *server* (`allow` + `local stratum 10`)
+- Confirmed it listens on UDP 123 to serve clients
+
+### What I learned
+- **Concept vs tool again**: NTP is the system; chrony is one implementation (like DNS↔BIND). Swappable for ntpd or systemd-timesyncd.
+- **Why clocks must agree**: not about one clock drifting — machines *disagreeing* breaks auth (Kerberos/TLS validity windows), log correlation, distributed data.
+- **Stratum hierarchy**: stratum 0 (atomic/GPS) → 1 → 2 → … Same hierarchical-delegation shape as DNS.
+- **NTP uses DNS**: chrony resolves pool.ntp.org names to find its time servers. Layers depend on layers.
+- **Stepping vs slewing**: jump vs gradual adjust. `makestep 1.0 3` = jumps only in first 3 updates.
+- **driftfile**: chrony learns and persists the clock's drift rate; read it back on restart.
+- **Two clocks**: system clock (RAM) vs hardware/RTC clock. `rtcsync` aligns them.
+- **rpm vs dnf**: dnf = high-level (repos, dependencies); rpm = low-level local query. Same as apt/dpkg.
+- **chronyc** = dig-for-time. **ss** for sockets: 123 = NTP service, 323 = local control. **Reach 377** (octal) = perfect reachability.
+
+### Pattern reinforcement (recurred from Phase 1)
+- Dedicated `chrony` user (least privilege); config in /etc/ (config-as-code)
+- Package name (chrony) ≠ service name (chronyd); enabled vs started; all 9 service properties present
+
+### Phase 2 status
+**Complete.** chrony running as NTP client (synced) and server (listening on 123, ready for VMs in Phase 3).
