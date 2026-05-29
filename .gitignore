@@ -43,3 +43,6 @@ __pycache__/
 # Local scratch directories
 scratch/
 .local/
+
+# Ansible SSH keys (per-VM private keys — NEVER commit)
+ansible/keys/*.key
