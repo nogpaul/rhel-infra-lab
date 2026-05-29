@@ -12,7 +12,7 @@ This is also a public portfolio for job applications in Linux systems engineerin
 
 - [x] **Phase 1**: Authoritative DNS server with BIND 9 on AlmaLinux 9
 - [x] **Phase 2**: NTP server with chrony, with offset/stratum monitoring
-- [ ] **Phase 3**: Multi-VM datacenter simulation with Vagrant + VirtualBox
+- [x] **Phase 3**: Multi-VM datacenter simulation with Vagrant + VirtualBox
 - [ ] **Phase 4**: Full automation with Ansible (roles for DNS, NTP, hardening)
 - [ ] **Phase 5**: CI with GitHub Actions, full documentation, migration plan
 
@@ -30,7 +30,8 @@ This is also a public portfolio for job applications in Linux systems engineerin
 
 ## Status
 
-**Phase 0** (Linux fundamentals) → in progress. See [`docs/learning-journal.md`](docs/learning-journal.md) for day-by-day notes.
+
+**Phase 3** complete. DNS, NTP, and multi-VM lab running on Vagrant + VirtualBox with forwarding configured. Phase 4 (Ansible automation) next. See [`docs/learning-journal.md`](docs/learning-journal.md) for day-by-day notes.
 
 ## Background
 

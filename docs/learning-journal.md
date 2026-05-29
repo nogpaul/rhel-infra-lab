@@ -66,3 +66,32 @@
 
 ### Phase 2 status
 **Complete.** chrony running as NTP client (synced) and server (listening on 123, ready for VMs in Phase 3).
+
+## Day 4 — May 29, 2026
+### What I built
+- Spun up a 3-VM datacenter on Vagrant + VirtualBox: server (DNS+NTP) and two clients on private network 192.168.56.0/24
+- Deployed the BIND and chrony configs from Phase 1/2 onto the server VM (192.168.56.10), updated for the new IP/subnet
+- Configured both clients to use the lab DNS server and sync time from the lab NTP server
+- Added BIND forwarders (8.8.8.8) so the lab DNS resolves external names too — clients now use **only** the lab DNS, no fallback needed
+### What I learned
+- **Hypervisor concept**: VirtualBox is a type-2 hypervisor. Vagrant is the declarative front-end — the Vagrantfile *is* the datacenter, in code.
+- **Infrastructure-as-code for VMs**: `vagrant up` reads the Vagrantfile and reproducibly builds the environment. Same idea as Terraform but for local VMs.
+- **Network modes**: NAT (eth0, internet access, isolated per-VM) vs private/host-only network (eth1, VMs see each other). Two adapters, two purposes.
+- **Vagrant box** = pre-built VM image, cached after first download. The almalinux/9 box is the template.
+- **Servers ship lean**: had to install `bind-utils` (for dig) and `nano` on the clients — they don't come with anything you don't need. Real production posture.
+- **Package vs service (live again)**: `chrony` is the package, `chronyd` is the service. `bind` package → `named` service.
+- **DNS isolation problem**: an authoritative-only DNS knows only its zones. Without forwarders, clients couldn't resolve `google.com` through it. Two fixes: (a) fallback DNS on each client, or (b) add forwarders on the lab DNS so it forwards what it doesn't know. (b) is the right design — single authoritative point.
+- **DNSSEC trust chain**: enabling `recursion yes` + `forwarders` initially gave SERVFAIL because BIND tried to validate the DNSSEC chain and broke. Disabled `dnssec-validation` for the lab. In production you'd configure trust anchors properly.
+- **`forward only;`** keeps BIND from falling back to root-server recursion when the forwarder doesn't answer — locks behavior to the forwarder.
+- **NTP stratum hierarchy (live)**: server VM ran at stratum 4 (synced from a stratum-3 internet source); clients showed stratum 5 — exactly server+1. The hierarchy printed itself on my terminal.
+- **chronyc sources flags**: `^?` = source unknown/not selected, `^*` = currently selected synced source. Multiple sources with `^?` = confused/unsynced; one `^*` = healthy.
+- **resolv.conf is fragile**: NetworkManager rewrites it on network events. Edits survive only until next refresh. Persistent fix = `nmcli` (or Ansible in Phase 4).
+### Pattern reinforcement (recurred from Phase 1/2)
+- Same config-as-code workflow, just deployed to remote VMs via shared folder
+- Same package/service split, same systemd enable+start
+- Same "permission denied on /etc/named.conf" reflex → `sudo`
+### Troubleshooting log (worth remembering)
+- chrony client showed multiple `^?` sources and `Stratum 0 / Not synchronised` → cause: forgot to comment out the default `pool` line when adding `server 192.168.56.10`. Two competing sources confused it. Single source → `^*` immediately.
+- BIND SERVFAIL on `dig google.com` → cause: DNSSEC chain validation broken via forwarder. Fix: `dnssec-validation no;` in lab.
+### Phase 3 status
+**Complete.** Three-VM lab running. DNS + NTP serving both clients. Lab DNS forwards external queries. Ready for Phase 4 (Ansible automation).
