@@ -1,0 +1,14 @@
+; {{ ansible_managed }}
+$TTL 86400
+@   IN  SOA  dns.{{ lab_domain }}. admin.{{ lab_domain }}. (
+                2026052901  ; serial — bump on every change
+                3600        ; refresh
+                1800        ; retry
+                604800      ; expire
+                86400 )     ; minimum
+    IN  NS   dns.{{ lab_domain }}.
+dns      IN  A    {{ server_ip }}
+ntp      IN  A    {{ server_ip }}
+web      IN  A    {{ server_ip }}
+client01 IN  A    {{ client_a_ip }}
+client02 IN  A    {{ client_b_ip }}

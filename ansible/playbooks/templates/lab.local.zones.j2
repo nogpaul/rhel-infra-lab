@@ -1,0 +1,6 @@
+// {{ ansible_managed }}
+zone "{{ lab_domain }}" IN {
+    type master;
+    file "{{ lab_domain }}.zone";
+    allow-query { {{ lab_subnet }}; localhost; };
+};

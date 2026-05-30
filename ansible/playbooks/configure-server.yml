@@ -22,8 +22,8 @@
 
     # ---------- BIND configs ----------
     - name: Deploy main BIND config (/etc/named.conf)
-      ansible.builtin.copy:
-        src: named.conf
+      ansible.builtin.template:
+        src: named.conf.j2
         dest: /etc/named.conf
         owner: root
         group: named
@@ -31,8 +31,9 @@
       notify: Restart named
 
     - name: Deploy zone declarations (/etc/named/lab.local.zones)
-      ansible.builtin.copy:
-        src: lab.local.zones
+      ansible.builtin.template:
+
+        src: lab.local.zones.j2
         dest: /etc/named/lab.local.zones
         owner: root
         group: named
@@ -40,8 +41,8 @@
       notify: Restart named
 
     - name: Deploy zone file (/var/named/lab.local.zone)
-      ansible.builtin.copy:
-        src: lab.local.zone
+      ansible.builtin.template:
+        src: lab.local.zone.j2
         dest: /var/named/lab.local.zone
         owner: root
         group: named
@@ -50,8 +51,8 @@
 
     # ---------- chrony config ----------
     - name: Deploy chrony config (/etc/chrony.conf)
-      ansible.builtin.copy:
-        src: chrony.conf
+      ansible.builtin.template:
+        src: chrony.conf.j2
         dest: /etc/chrony.conf
         owner: root
         group: root

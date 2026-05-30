@@ -1,0 +1,9 @@
+---
+# Lab network identity — single source of truth
+lab_domain:       "lab.local"
+lab_subnet:       "192.168.56.0/24"
+lab_subnet_allow: "192.168.0.0/16"   # broader range for chrony "allow"
+server_ip:        "192.168.56.10"
+client_a_ip:      "192.168.56.11"
+client_b_ip:      "192.168.56.12"
+upstream_dns:     "8.8.8.8"
