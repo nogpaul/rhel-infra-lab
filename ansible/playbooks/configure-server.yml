@@ -1,0 +1,83 @@
+---
+- name: Configure lab DNS + NTP server
+  hosts: server
+  become: yes
+
+  tasks:
+    # ---------- Packages ----------
+    - name: Ensure BIND is installed
+      ansible.builtin.dnf:
+        name: bind
+        state: present
+
+    - name: Ensure bind-utils is installed (for dig/host)
+      ansible.builtin.dnf:
+        name: bind-utils
+        state: present
+
+    - name: Ensure chrony is installed
+      ansible.builtin.dnf:
+        name: chrony
+        state: present
+
+    # ---------- BIND configs ----------
+    - name: Deploy main BIND config (/etc/named.conf)
+      ansible.builtin.copy:
+        src: named.conf
+        dest: /etc/named.conf
+        owner: root
+        group: named
+        mode: '0640'
+      notify: Restart named
+
+    - name: Deploy zone declarations (/etc/named/lab.local.zones)
+      ansible.builtin.copy:
+        src: lab.local.zones
+        dest: /etc/named/lab.local.zones
+        owner: root
+        group: named
+        mode: '0640'
+      notify: Restart named
+
+    - name: Deploy zone file (/var/named/lab.local.zone)
+      ansible.builtin.copy:
+        src: lab.local.zone
+        dest: /var/named/lab.local.zone
+        owner: root
+        group: named
+        mode: '0640'
+      notify: Restart named
+
+    # ---------- chrony config ----------
+    - name: Deploy chrony config (/etc/chrony.conf)
+      ansible.builtin.copy:
+        src: chrony.conf
+        dest: /etc/chrony.conf
+        owner: root
+        group: root
+        mode: '0644'
+      notify: Restart chronyd
+
+    # ---------- Services ----------
+    - name: Ensure named is enabled and started
+      ansible.builtin.service:
+        name: named
+        state: started
+        enabled: yes
+
+    - name: Ensure chronyd is enabled and started
+      ansible.builtin.service:
+        name: chronyd
+        state: started
+        enabled: yes
+
+  handlers:
+    - name: Restart named
+      ansible.builtin.service:
+        name: named
+        state: restarted
+
+    - name: Restart chronyd
+      ansible.builtin.service:
+        name: chronyd
+        state: restarted

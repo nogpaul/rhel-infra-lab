@@ -1,0 +1,5 @@
+zone "lab.local" IN {
+    type master;
+    file "lab.local.zone";
+    allow-query { 192.168.56.0/24; localhost; };
+};
