@@ -31,7 +31,7 @@ This is also a public portfolio for job applications in Linux systems engineerin
 ## Status
 
 
-**Phase 3** complete. DNS, NTP, and multi-VM lab running on Vagrant + VirtualBox with forwarding configured. Phase 4 (Ansible automation) next. See [`docs/learning-journal.md`](docs/learning-journal.md) for day-by-day notes.
+**Phase 4** nearly complete. Ansible roles + site.yml orchestrator deploy the entire lab; disaster recovery proven (destroyed server, rebuilt in 60s via one command). Phase 5 (CI + docs) remaining. See [`docs/learning-journal.md`](docs/learning-journal.md) for day-by-day notes.
 
 ## Background
 

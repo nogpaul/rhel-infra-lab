@@ -95,3 +95,36 @@
 - BIND SERVFAIL on `dig google.com` → cause: DNSSEC chain validation broken via forwarder. Fix: `dnssec-validation no;` in lab.
 ### Phase 3 status
 **Complete.** Three-VM lab running. DNS + NTP serving both clients. Lab DNS forwards external queries. Ready for Phase 4 (Ansible automation).
+
+## Day 5 — May 30, 2026
+### What I built
+- `configure-server.yml`: 10-task playbook that deploys BIND + chrony + 4 configs + services on the server VM (idempotent: ok=10 changed=0 on re-run)
+- Introduced Jinja2 templates: converted all 4 server configs to `.j2` files driven by variables
+- `group_vars/all.yml` as single source of truth (7 variables: domain, subnet, IPs, upstream DNS)
+- Refactored flat playbooks into three roles: `dns-server`, `ntp-server`, `lab-client` (each with tasks/, handlers/, templates/)
+- `site.yml` orchestrator — single playbook deploys the entire datacenter
+- **Proved disaster recovery**: destroyed the server VM with `vagrant destroy`, recreated it with `vagrant up`, ran `ansible-playbook playbooks/site.yml`, watched Ansible rebuild the entire DNS+NTP server in ~60 seconds. Clients kept pointing at 192.168.56.10 the whole time and resynced automatically when the server came back.
+
+### What I learned
+- **Templates vs copy**: when configs have *any* parameterizable values, templates win. `copy` is for files with no variability. The `.j2` extension is convention; what matters is the `template:` module.
+- **`{{ variable }}` substitution at deploy time**: Jinja2 reads variables from `group_vars/`, `host_vars/`, role `defaults/`, etc., and substitutes when rendering. Rendered output lands on disk.
+- **`ansible_managed`**: built-in variable that marks files as automation-managed. Critical signal to other engineers: "don't hand-edit this file."
+- **Role structure as a contract**: `tasks/main.yml` is the entry point, `handlers/main.yml` is the handler library, `templates/` is role-local. Other directories (vars/, defaults/, meta/, files/) exist when needed.
+- **Roles auto-prefix tasks**: Ansible labels role-owned tasks `[role-name : task name]` in output. Huge readability win at scale.
+- **`loop`** with `{{ item }}`: install multiple packages in one task. Less repetition, clearer intent.
+- **`roles_path` in `ansible.cfg`**: Ansible doesn't auto-discover roles. Default search is `playbooks/roles/`; we set `roles_path = roles` so they live at `ansible/roles/`.
+- **DR property**: if a server can be destroyed and rebuilt purely from code, the infrastructure is *cattle*, not *pets*. That's what "infrastructure as code" actually means.
+- **Stateless clients tolerate stateful server outage**: nuked the server, clients lost DNS+NTP for ~3 min, server came back at same IP with same configs, clients auto-resynced. Never touched the clients.
+- **Vagrant regenerates SSH keys on `vagrant up`**: per-VM private key is fresh after every recreation. Re-copy to Ansible keys dir after destroy/up cycles.
+
+### Pattern reinforcement (recurred from Phase 1–3)
+- Single source of truth: configs in repo → Ansible deploys → server uses. Same Phase 1/2 principle, now propagated through automation.
+- Idempotence: every `site.yml` rerun shows `changed=0` on already-converged hosts. Same property as chrony state matching, applied to config files.
+- Owner/group/mode discipline (`root:named 0640` for BIND, `root:root 0644` for chrony). Perms still matter, just declared in tasks now.
+
+### Troubleshooting log
+- "Could not find or access 'lab.local.zone.j2'" → cause: changed `src:` but forgot to switch `copy:` module to `template:`. The `copy` module searches `files/`, `template:` searches `templates/`. Module name matters.
+- "the role 'dns-server' was not found" → cause: Ansible looks for roles in `playbooks/roles/` by default. Fix: `roles_path = roles` in `ansible.cfg`.
+
+### Phase 4 status
+**~85% complete.** Roles + site.yml + DR demo done. What remains: optional hardening role (per job listing), then Phase 5 (CI + docs + migration plan).
