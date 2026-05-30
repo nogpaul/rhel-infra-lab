@@ -1,0 +1,16 @@
+---
+# site.yml — build the entire lab datacenter
+# Run: ansible-playbook playbooks/site.yml
+
+- name: Configure DNS + NTP server
+  hosts: server
+  become: yes
+  roles:
+    - dns-server
+    - ntp-server
+
+- name: Configure lab clients
+  hosts: clients
+  become: yes
+  roles:
+    - lab-client

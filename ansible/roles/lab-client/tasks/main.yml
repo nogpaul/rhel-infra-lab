@@ -1,0 +1,33 @@
+---
+- name: Ensure bind-utils is installed (for dig/host)
+  ansible.builtin.dnf:
+    name: bind-utils
+    state: present
+
+- name: Configure /etc/resolv.conf to use lab DNS
+  ansible.builtin.template:
+    src: resolv.conf.j2
+    dest: /etc/resolv.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Ensure chrony is installed
+  ansible.builtin.dnf:
+    name: chrony
+    state: present
+
+- name: Configure /etc/chrony.conf to sync from lab NTP server
+  ansible.builtin.template:
+    src: chrony.conf.j2
+    dest: /etc/chrony.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart chronyd
+
+- name: Ensure chronyd is enabled and started
+  ansible.builtin.service:
+    name: chronyd
+    state: started
+    enabled: yes
